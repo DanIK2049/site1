@@ -1,0 +1,74 @@
+
+<!-- 📖 Глоссарий -->
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📖 Глоссарий</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f6f0d8;
+      color: #333;
+    }
+
+    header {
+      background-color: #f36658;
+      color: white;
+      padding: 30px 0;
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .content {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 30px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      font-size: 26px;
+      text-align: center;
+      color: #f36658;
+      margin-bottom: 30px;
+    }
+
+    #content {
+      font-size: 16px;
+      line-height: 1.6;
+      padding: 10px;
+    }
+
+    #content img,
+    #content video,
+    #content a[href$=".pdf"],
+    #content a[href$=".doc"],
+    #content a[href$=".docx"] {
+      display: block;
+      margin: 20px auto;
+      max-width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <header>📖 Глоссарий </header>
+
+  <div class="content">
+    <div id="content" data-section="glossary">Контент жүктелуде...</div>
+  </div>
+  <script>
+    const section = "glossary";
+    const data = JSON.parse(localStorage.getItem("eduContent") || "{}");
+    document.getElementById("content").innerHTML = data[section] || "Контент табылмады.";
+  </script>
+  
+
+</body>
+</html>

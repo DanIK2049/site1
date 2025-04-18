@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📝 Контент редакторы</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      background: linear-gradient(to right, #fdfbfb, #ebedee);
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .content {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 25px;
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+      text-align: center;
+      font-size: 26px;
+      margin-bottom: 20px;
+    }
+    #editor {
+      width: 100%;
+      min-height: 250px;
+      margin: 10px 0;
+      border-radius: 8px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+      background-color: #fdfdfd;
+      outline: none;
+    }
+    select, button {
+      margin: 5px 5px 15px 0;
+      padding: 10px 16px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: none;
+      background-color: #f6a828;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #e6951a;
+    }
+    .preview {
+      margin-top: 20px;
+      background: #f3f3f3;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+    #fileInput, #generatedCode {
+      margin-top: 10px;
+    }
+    #filePreview img, video {
+      max-width: 100%;
+      margin-top: 10px;
+    }
+    #quizInput {
+      width: 100%;
+      height: 120px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="content">
+    <h2>📚 Контент редакторы — Мұғалімге арналған панель</h2>
+    <label for="section">📂 Бөлімді таңдаңыз:</label>
+    <select id="section">
+      <option value="theory">📘 Теориялық бөлім</option>
+      <option value="lab">🔬 Зертханалық жұмыстар</option>
+      <option value="world">🌍 Қызықты әлем</option>
+      <option value="glossary">📖 Глоссарий</option>
+      <option value="tasks">❓ Сұрақтар</option>
+      <option value="quiz">📝 Тест</option>
+    </select>
+
+    <div id="editor" contenteditable="true"></div>
+    <textarea id="quizInput" style="display:none;" placeholder="Сұрақ - Жауап 1 - +Жауап 2 - Жауап 3"></textarea>
+
+    <button onclick="save()">💾 Сақтау</button>
+    <button onclick="clearEditor()">🧹 Тазарту</button>
+
+    <div class="preview" id="preview"></div>
+
+    <hr/>
+    <h3>📁 Файл жүктеу немесе перетаскивание</h3>
+    <input type="file" id="fileInput" /><br/><br/>
+    <div id="filePreview"></div>
+    <textarea id="generatedCode" readonly placeholder="🔗 файлдар автоматты түрде осында шығады..." style="width:100%;height:100px;"></textarea>
+  </div>
+
+  <script>
+    const section = document.getElementById("section");
+    const editor = document.getElementById("editor");
+    const quizInput = document.getElementById("quizInput");
+    const previewEl = document.getElementById("preview");
+
+    function load() {
+      const data = JSON.parse(localStorage.getItem("eduContent") || "{}");
+      if (section.value === "quiz") {
+        editor.style.display = "none";
+        quizInput.style.display = "block";
+        quizInput.value = (data.quizRaw || "").trim();
+      } else {
+        editor.style.display = "block";
+        quizInput.style.display = "none";
+        editor.innerHTML = data[section.value] || "";
+        preview();
+      }
+    }
+
+    function save() {
+      let data = JSON.parse(localStorage.getItem("eduContent") || "{}");
+
+      if (section.value === "quiz") {
+        const raw = quizInput.value.trim();
+        data.quizRaw = raw;
+
+        const lines = raw.split('\n').filter(line => line.includes('-'));
+        const quiz = lines.map(line => {
+          const parts = line.split('-').map(p => p.trim());
+          const question = parts[0];
+          const options = [];
+          let correct = 0;
+          parts.slice(1).forEach((opt, i) => {
+            if (opt.startsWith('+')) {
+              options.push(opt.substring(1));
+              correct = i;
+            } else {
+              options.push(opt);
+            }
+          });
+          return { question, options, correct };
+        });
+
+        data.quiz = quiz;
+        localStorage.setItem("eduContent", JSON.stringify(data));
+        alert("✅ Тест сақталды!");
+      } else {
+        data[section.value] = editor.innerHTML;
+        localStorage.setItem("eduContent", JSON.stringify(data));
+        alert("✅ Сақталды!");
+        preview();
+      }
+    }
+
+    function preview() {
+      previewEl.innerHTML = editor.innerHTML;
+    }
+
+    function clearEditor() {
+      if (section.value === "quiz") {
+        quizInput.value = "";
+      } else {
+        editor.innerHTML = "";
+        preview();
+      }
+    }
+
+    section.addEventListener("change", load);
+    load();
+
+    document.getElementById("fileInput").addEventListener("change", handleFileUpload);
+
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const ext = file.name.split('.').pop().toLowerCase();
+      if (["mp4", "webm", "ogg"].includes(ext)) {
+        alert("⚠️ Үлкен видео файлдар localStorage-ке сақталмайды. Файлды 'media/' папкасына қолмен салып, мынадай кодты пайдаланыңыз:");
+        const html = `<video controls width="400" src="media/theory/${file.name}"></video>`;
+        document.getElementById("generatedCode").value = html;
+        return;
+      }
+
+      if (file.size > 3 * 1024 * 1024) {
+        alert("❌ Файл тым үлкен (макс. 3MB)");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const url = e.target.result;
+        let html = "";
+        if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) {
+          html = `<img src="${url}" width="300"><br>`;
+        } else {
+          html = `<a href="${url}" download="${file.name}">📄 ${file.name}</a><br>`;
+        }
+
+        if (section.value !== "quiz") {
+          editor.innerHTML += html;
+          preview();
+          const data = JSON.parse(localStorage.getItem("eduContent") || "{}");
+          data[section.value] = editor.innerHTML;
+          localStorage.setItem("eduContent", JSON.stringify(data));
+        }
+
+        document.getElementById("generatedCode").value = html;
+        document.getElementById("filePreview").innerHTML = html;
+      };
+      reader.readAsDataURL(file);
+    }
+  </script>
+</body>
+</html>

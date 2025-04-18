@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📝 Тест</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f6f0d8;
+      margin: 0;
+      padding: 0;
+    }
+    h2 {
+      text-align: center;
+      background-color: #f36658;
+      color: white;
+      margin: 0;
+      padding: 20px;
+      font-size: 28px;
+    }
+    .content {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 25px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+    .question-block {
+      margin-bottom: 25px;
+      padding: 15px;
+      background: #fdfdfd;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+    .question-block p {
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    label {
+      display: block;
+      margin-left: 15px;
+      margin-bottom: 5px;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background-color: #f6a828;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #e6951a;
+    }
+    .result {
+      font-weight: bold;
+      margin-top: 20px;
+      font-size: 18px;
+      color: #333;
+    }
+    .history {
+      margin-top: 30px;
+      background: #f0f0f0;
+      padding: 15px;
+      border-radius: 10px;
+    }
+    .history-entry {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h2>📝 Тест</h2>
+  <div class="content">
+    <form id="quizForm"></form>
+    <button onclick="submitQuiz()">✅ Жауап беру</button>
+    <p class="result" id="result"></p>
+    <hr/>
+    <button onclick="showProgress()">📊 Менің нәтижелерім</button>
+    <div id="history" class="history" style="display:none;"></div>
+  </div>
+
+  <script>
+    function loadQuiz() {
+      const data = JSON.parse(localStorage.getItem("eduContent") || "{}");
+      const quiz = data.quiz || [];
+      const form = document.getElementById("quizForm");
+      form.innerHTML = "";
+      quiz.forEach((q, i) => {
+        const block = document.createElement("div");
+        block.className = "question-block";
+        block.innerHTML = `<p>${i + 1}) ${q.question}</p>` + q.options.map((opt, j) =>
+          `<label><input type="radio" name="q${i}" value="${j}"> ${opt}</label>`
+        ).join("");
+        form.appendChild(block);
+      });
+    }
+
+    function submitQuiz() {
+      const data = JSON.parse(localStorage.getItem("eduContent") || "{}");
+      const quiz = data.quiz || [];
+      let score = 0;
+      quiz.forEach((q, i) => {
+        const answer = document.querySelector(`input[name="q${i}"]:checked`);
+        if (answer && parseInt(answer.value) === q.correct) score++;
+      });
+      const resultText = `Сіздің нәтижеңіз: ${score} / ${quiz.length}`;
+      document.getElementById("result").innerText = resultText;
+
+      const record = {
+        date: new Date().toLocaleString(),
+        score: score,
+        total: quiz.length
+      };
+      let results = JSON.parse(localStorage.getItem("quizResults") || "[]");
+      results.push(record);
+      localStorage.setItem("quizResults", JSON.stringify(results));
+    }
+
+    function showProgress() {
+      const historyBlock = document.getElementById("history");
+      const results = JSON.parse(localStorage.getItem("quizResults") || "[]");
+      if (results.length === 0) {
+        historyBlock.innerHTML = "<p>Әзірге нәтиже жоқ.</p>";
+      } else {
+        historyBlock.innerHTML = "<h4>📜 Өткен нәтижелер:</h4>" + results.map(r =>
+          `<div class="history-entry">${r.date} — <strong>${r.score}/${r.total}</strong></div>`
+        ).join("");
+      }
+      historyBlock.style.display = "block";
+    }
+
+    document.addEventListener("DOMContentLoaded", loadQuiz);
+  </script>
+</body>
+</html>

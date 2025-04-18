@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Arduino платформасы</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Arduino платформасы</h1>
+    <p>Білім беру платформасы — мұғалім мен оқушы үшін</p>
+  </header>
+  <button id="themeToggle" class="toggle-theme">🌗</button>
+  <nav>
+    <a href="theory.html">Теориялық бөлім</a>
+    <a href="lab.html">Зертханалық жұмыстар</a>
+    <a href="world.html">Қызықты әлем</a>
+    <a href="glossary.html">Глоссарий</a>
+    <a href="tasks.html">Сұрақтар</a>
+    <a href="quiz.html">Тест</a>
+    
+  </nav>
+  <script>
+    if (!localStorage.getItem("eduContent")) {
+      localStorage.setItem("eduContent", JSON.stringify({
+        theory: "<h3>Кіріспе</h3><p>Теориялық бөлім мазмұны.</p>",
+        lab: "<p>Лабораториялық тапсырмалар осында жазылады.</p>",
+        world: "<p>Қызықты әлем мысалдары.</p>",
+        glossary: "<ul><li>Модель — нақты құбылыстың қарапайым көшірмесі.</li></ul>",
+        tasks: "<ol><li>Модельдеудің түрін атаңыз.</li></ol>",
+        quiz: [],
+        history: []
+      }));
+    }
+  </script>
+  <script src="script.js" defer></script>
+</body>
+</html>
