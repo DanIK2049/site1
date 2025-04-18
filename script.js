@@ -1,23 +1,27 @@
-localStorage.setItem("eduContent", JSON.stringify({
-   theory: `<h3>Кіріспе</h3><p>Бұл теориялық бөлімнің мазмұны.</p><img src="https://example.com/image.jpg"/>`,
-    lab: `<p>Лабораториялық жұмыс №1: Светодиод жағу.</p>`,
-    world: `<p>Arduino көмегімен жасалған қызықты жобалар.</p>`,
-    glossary: `<ul><li><b>Микроконтроллер</b> — басқарушы құрылғы.</li></ul>`,
-    tasks: `<ol><li>Arduino не үшін қолданылады?</li></ol>`,
-    quiz: [
-      {
-        question: "Arduino дегеніміз не?",
-        options: ["Бағдарлама", "Құрылғы", "Ойын", "Желі"],
-        correct: 1
-      },
-      {
-        question: "LED не үшін керек?",
-        options: ["Жарық беру үшін", "Дыбыс үшін", "Су беру үшін", "Мәлімет сақтау үшін"],
-        correct: 0
-      }
-    ]
-}));
 document.addEventListener("DOMContentLoaded", () => {
+  // Инициализация данных при первом запуске
+  if (!localStorage.getItem("eduContent")) {
+    const initialContent = {
+      theory: `<h3>Кіріспе</h3><p>Теориялық бөлім мазмұны.</p><br>
+               <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank">🎬 Видео көру</a><br>
+               <a href="files/sample.docx" download>📄 Жүктеу: Уорд файл</a>`,
+      lab: `<p>🔬 Зертханалық жұмыс 1: Ардуино платасын қосу.</p>`,
+      world: `<p>🌍 Қызықты дерек: Ардуиноны NASA қолданған.</p>`,
+      glossary: `<ul><li>Микроконтроллер — программаланатын чип.</li></ul>`,
+      tasks: `<ol><li>Ардуино мен сенсорды қосу сызбасын сызыңыз.</li></ol>`,
+      quiz: [
+        {
+          question: "Ардуино деген не?",
+          options: ["Процессор", "Платформа", "Браузер"],
+          correct: 1
+        }
+      ],
+      history: []
+    };
+    localStorage.setItem("eduContent", JSON.stringify(initialContent));
+  }
+
+  // Подключение контента
   const contentEl = document.getElementById("content");
   if (contentEl) {
     const section = contentEl.getAttribute("data-section");
@@ -25,11 +29,13 @@ document.addEventListener("DOMContentLoaded", () => {
     contentEl.innerHTML = data[section] || "Контент табылмады.";
   }
 
+  // Темная тема
   const themeBtn = document.getElementById("themeToggle");
   if (themeBtn) {
     themeBtn.onclick = () => document.body.classList.toggle("dark-mode");
   }
 
+  // Загрузка файлов
   const fileInput = document.getElementById("fileInput");
   if (fileInput) {
     fileInput.addEventListener("change", handleFileUpload);
@@ -53,13 +59,9 @@ document.addEventListener("DOMContentLoaded", () => {
         html = `<a href="${url}" download>📄 ${file.name}</a>`;
       }
 
-      const preview = document.getElementById("filePreview");
-      const codeArea = document.getElementById("generatedCode");
-
-      if (preview) preview.innerHTML = html;
-      if (codeArea) codeArea.value = html;
+      document.getElementById("filePreview").innerHTML = html;
+      document.getElementById("generatedCode").value = html;
     };
-
     reader.readAsDataURL(file);
   }
 });
